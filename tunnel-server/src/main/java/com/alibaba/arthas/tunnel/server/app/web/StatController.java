@@ -17,6 +17,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
  */
 @Controller
 public class StatController {
+
     private final static Logger logger = LoggerFactory.getLogger(StatController.class);
 
     @RequestMapping(value = "/api/stat")
