@@ -4,6 +4,7 @@ import * as fit from 'xterm/lib/addons/fit/fit';
 
 Terminal.applyAddon(fit);
 
+const divHeight = 17*30;
 const id = "webConsole";
 
 class CommandLine extends React.Component {
@@ -19,10 +20,12 @@ class CommandLine extends React.Component {
 
         let terminalContainer = document.getElementById(id);
         this.term = new Terminal({
+            cols: Math.floor(parseInt(window.getComputedStyle(terminalContainer).width) / 10),
+            rows: divHeight/17,
             screenReaderMode: true,
             rendererType: 'canvas',
             convertEol: true,
-            cursorBlink: true
+            //cursorBlink: true
         });
        // this.term.fit();
         this.term.open(terminalContainer);
@@ -39,7 +42,7 @@ class CommandLine extends React.Component {
                 xterm.write(event.data);
             }
         };
-        // ws.send(JSON.stringify({action: 'resize', cols: terminalSize.cols, rows: terminalSize.rows}));
+        ws.send(JSON.stringify({action: 'resize', cols: this.term.cols, rows: this.term.rows}));
         window.setInterval(function () {
             if (ws != null) {
                 ws.send(JSON.stringify({action: 'read', data: ""}));
@@ -49,7 +52,7 @@ class CommandLine extends React.Component {
 
     render() {
         return (
-            <div id={id}></div>
+            <div id={id} style={{width:"100%",height:divHeight}}></div>
         )
     }
 }

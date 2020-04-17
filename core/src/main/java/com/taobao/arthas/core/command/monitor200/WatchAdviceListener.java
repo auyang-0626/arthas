@@ -1,22 +1,24 @@
 package com.taobao.arthas.core.command.monitor200;
 
+import com.alibaba.arthas.deps.org.slf4j.Logger;
+import com.alibaba.arthas.deps.org.slf4j.LoggerFactory;
 import com.taobao.arthas.core.advisor.Advice;
 import com.taobao.arthas.core.advisor.ArthasMethod;
 import com.taobao.arthas.core.advisor.ReflectAdviceListenerAdapter;
+import com.taobao.arthas.core.advisor.VariableStore;
 import com.taobao.arthas.core.shell.command.CommandProcess;
 import com.taobao.arthas.core.util.DateUtils;
 import com.taobao.arthas.core.util.LogUtil;
 import com.taobao.arthas.core.util.StringUtils;
 import com.taobao.arthas.core.util.ThreadLocalWatch;
 import com.taobao.arthas.core.view.ObjectView;
-import com.taobao.middleware.logger.Logger;
 
 /**
  * @author beiwei30 on 29/11/2016.
  */
 class WatchAdviceListener extends ReflectAdviceListenerAdapter {
 
-    private static final Logger logger = LogUtil.getArthasLogger();
+    private static final Logger logger = LoggerFactory.getLogger(WatchAdviceListener.class);
     private final ThreadLocalWatch threadLocalWatch = new ThreadLocalWatch();
     private WatchCommand command;
     private CommandProcess process;
@@ -91,9 +93,15 @@ class WatchAdviceListener extends ReflectAdviceListenerAdapter {
         } catch (Exception e) {
             logger.warn("watch failed.", e);
             process.write("watch failed, condition is: " + command.getConditionExpress() + ", express is: "
-                          + command.getExpress() + ", " + e.getMessage() + ", visit " + LogUtil.LOGGER_FILE
+                          + command.getExpress() + ", " + e.getMessage() + ", visit " + LogUtil.loggingFile()
                           + " for more details.\n");
             process.end();
         }
     }
+
+  /*  @Override
+    public void variableStored(int line, String varName, Object varValue) {
+        process.write(String.format("line:%s %s=%s \n",line,varName,StringUtils.objectToString(
+                isNeedExpand() ? new ObjectView(varValue, command.getExpand(), command.getSizeLimit()).draw() : varValue)));
+    }*/
 }
