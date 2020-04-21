@@ -1,7 +1,9 @@
 import React from 'react';
 import Header from "./header";
-import {Tabs,message} from "antd";
+import {message, Tabs} from "antd";
 import CommandLine from "./commandLine";
+import DebugOnline from "./debug_online/DebugOnline";
+import InitWebSocket from "../webSocket";
 
 const { TabPane } = Tabs;
 
@@ -24,48 +26,74 @@ class Home extends React.Component{
             targetPid: pid,
             agentId:agentId,
         })
-        let that = this;
-        this.ws = this.initWs(agentId)
+    }
 
-        let ws = this.ws;
-        ws.onerror = function () {
-            that.ws = null;
-            message.error("连接失败！")
-            that.setState({
-                connected: false
-            })
-        };
-        ws.onclose = function (res) {
-            if (res.code === 2000) {
-                message.error(res.reason)
-            }
-            that.setState({
-                connected: false
-            })
-        };
-        ws.onopen = function () {
-            that.xtermRef.wsOpened(ws);
+    getWs1(){
+        if (!this.ws1) {
+            let that = this;
+
+            let ws1 = InitWebSocket.create(this.state.agentId);
+            ws1.onerror = function () {
+                message.error("连接失败！")
+                that.setState({
+                    connected: false
+                })
+            };
+            ws1.onclose = function (res) {
+                if (res.code === 2000) {
+                    message.error(res.reason)
+                }
+                that.setState({
+                    connected: false
+                })
+            };
+            this.ws1 = ws1;
+            console.info(this.ws1)
+        }
+        return this.ws1;
+    }
+    getWs2(){
+        if (!this.ws2) {
+            let that = this;
+
+            let ws2 = InitWebSocket.create(this.state.agentId);
+            ws2.onerror = function () {
+                message.error("连接失败！")
+                that.setState({
+                    connected: false
+                })
+                that.ws1 = null;
+                that.ws2 = null;
+            };
+            ws2.onclose = function (res) {
+                if (res.code === 2000) {
+                    message.error(res.reason)
+                }
+                that.setState({
+                    connected: false
+                })
+                that.ws1 = null;
+                that.ws2 = null;
+            };
+            this.ws2 = ws2;
         }
 
+        return this.ws2;
     }
 
     xtermOnRef(ref){
         this.xtermRef = ref;
     }
-    /** init websocket **/
-    initWs (agentId) {
-        //todo 要区分测试和线上
-        let domain = "172.17.62.57:7777";
-        const path = 'ws://' +domain+ '/ws?method=connectArthas&id=' + agentId;
-        return  new WebSocket(path);
+    debugOnLineOnRef(ref){
+        this.debugOnLine = ref;
     }
-
     onDisconnect(){
-        console.info("dis")
         this.setState({
             connected: false
         });
     }
+
+
 
     render() {
         return(
@@ -79,10 +107,10 @@ class Home extends React.Component{
                 <div style={{marginTop:20}}>
                     {this.state.connected?<Tabs defaultActiveKey="1">
                         <TabPane tab="Web控制台" key="1">
-                            <CommandLine onRef={this.xtermOnRef.bind(this)}/>
+                            <CommandLine onRef={this.xtermOnRef.bind(this)} getWs={this.getWs1.bind(this)}/>
                         </TabPane>
                         <TabPane tab="在线debug" key="2">
-                            Content of Tab Pane 2
+                            <DebugOnline onRef={this.debugOnLineOnRef.bind(this)} getWs={this.getWs2.bind(this)} pid={this.state.targetPid} />
                         </TabPane>
                     </Tabs>:""}
                 </div>

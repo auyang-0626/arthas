@@ -61,6 +61,10 @@ public class JadCommand extends AnnotatedCommand {
      * jad output source code only
      */
     private boolean sourceOnly = false;
+    /**
+     * 是否高亮代码,默认情况下要高亮，所以选择否定用语
+     */
+    private boolean notRender = false;
 
     @Argument(argName = "class-pattern", index = 0)
     @Description("Class name pattern, use either '.' or '/' as separator")
@@ -91,6 +95,11 @@ public class JadCommand extends AnnotatedCommand {
     @Description("Output source code only")
     public void setSourceOnly(boolean sourceOnly) {
         this.sourceOnly = sourceOnly;
+    }
+    @Option(longName = "not-render", flag = true)
+    @Description("render code")
+    public void setNotRender(boolean notRender) {
+        this.notRender = notRender;
     }
 
     @Override
@@ -161,7 +170,12 @@ public class JadCommand extends AnnotatedCommand {
             }
 
             if (this.sourceOnly) {
-                process.write(LangRenderUtil.render(source) + "\n");
+                // 简写版好像有问题，没跟进
+                if (this.notRender){
+                    process.write(source + "\n");
+                }else {
+                    process.write(LangRenderUtil.render(source) + "\n");
+                }
                 return;
             }
 

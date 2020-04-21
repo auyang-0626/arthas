@@ -16,6 +16,7 @@
     "react-dom": "^16.13.1",
     "react-router-dom": "^5.1.2",
     "react-scripts": "3.4.1",
+    "react-syntax-highlighter": "^12.2.1",
     "sass": "^1.26.3",
     "xterm": "^3.14.2"
   },
